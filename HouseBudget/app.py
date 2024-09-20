@@ -4,7 +4,6 @@ from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Funções para interagir com o banco de dados
 def criar_tabela_usuarios():
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -12,13 +11,35 @@ def criar_tabela_usuarios():
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
-            email TEXT NOT NULL
+            email TEXT NOT NULL,
+            senha TEXT NOT NULL  -- Adicionando a coluna senha corretamente
         )
     ''')
     conn.commit()
     conn.close()
 
+# Chama a função para criar a tabela com a coluna 'senha'
 criar_tabela_usuarios()
+
+def adicionar_coluna_senha():
+    conn = sqlite3.connect('usuario.db')
+    c = conn.cursor()
+    
+    # Verifica as colunas existentes na tabela 'usuarios'
+    c.execute("PRAGMA table_info(usuarios)")
+    colunas = [info[1] for info in c.fetchall()]
+    
+    if 'senha' not in colunas:
+        # Adiciona a coluna 'senha'
+        c.execute("ALTER TABLE usuarios ADD COLUMN senha TEXT NOT NULL DEFAULT ''")
+        conn.commit()
+        st.warning("Coluna 'senha' adicionada à tabela 'usuarios'.")
+    else:
+        st.info("A coluna 'senha' já existe na tabela 'usuarios'.")
+    
+    conn.close()
+
+
 
 def criar_tabela_despesas_receitas():
     conn = sqlite3.connect('usuario.db')
@@ -155,6 +176,23 @@ def pagina_graficos():
 def pagina_principal():
     st.title("Despesas e Receitas")
     
+    # Seção de cadastro de novo usuário
+    with st.form("user_registration"):
+        st.header("Cadastrar Novo Usuário")
+        nome = st.text_input("Nome")
+        email = st.text_input("Email")
+        senha = st.text_input("Senha", type="password")  # Campo de senha
+        
+        submitted_cadastro = st.form_submit_button("Cadastrar Usuário")
+        
+        if submitted_cadastro:
+            sucesso, mensagem = cadastrar_usuario(nome, email, senha)
+            if sucesso:
+                st.success(mensagem)
+            else:
+                st.error(mensagem)
+    
+    # Seção de despesas e receitas
     with st.form("user_input_1"):  
         st.header("Selecione o usuário")
         usuarios = listar_usuarios()
@@ -184,7 +222,7 @@ def pagina_principal():
         saldo = calcular_saldo(usuario_id, mes, ano)
         st.header("Resultado")
         st.write(f"O saldo do usuário no mês {mes}/{ano} é: R$ {saldo:.2f}")
-        
+
 # Função para exibir footer
 def adicionar_footer():
     footer = """
@@ -222,3 +260,4 @@ paginas[selecao_pagina]()
 
 # Adicionar o footer
 adicionar_footer()
+
