@@ -3,8 +3,6 @@ import sqlite3
 from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
-import uuid
-
 
 # Funções para interagir com o banco de dados
 def criar_tabela_usuarios():
@@ -81,7 +79,6 @@ def cadastrar_despesas_receitas(usuario_id, tipo, descricao, valor, mes, ano):
 def calcular_saldo(usuario_id, mes, ano):
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
-
     c.execute('''
         SELECT tipo, descricao, valor FROM despesas_receitas
         WHERE usuario_id = ? AND mes = ? AND ano = ?
@@ -157,7 +154,7 @@ def pagina_graficos():
 def pagina_principal():
     st.title("Despesas e Receitas")
     
-    with st.form("user_input_main"):
+    with st.form("user_input_1"):  
         st.header("Selecione o usuário")
         usuarios = listar_usuarios()
         
@@ -186,7 +183,7 @@ def pagina_principal():
         saldo = calcular_saldo(usuario_id, mes, ano)
         st.header("Resultado")
         st.write(f"O saldo do usuário no mês {mes}/{ano} é: R$ {saldo:.2f}")
-
+        
 # Função para exibir footer
 def adicionar_footer():
     footer = """
