@@ -9,15 +9,16 @@ def criar_tabela_usuarios():
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
     c.execute('''
-        CREATE TABLE IF NOT EXISTS usuarios(
+        CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            senha TEXT NOT NULL
+            email TEXT NOT NULL
         )
     ''')
     conn.commit()
     conn.close()
+
+criar_tabela_usuarios()
 
 def criar_tabela_despesas_receitas():
     conn = sqlite3.connect('usuario.db')
