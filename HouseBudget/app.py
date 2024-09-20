@@ -72,15 +72,25 @@ def cadastrar_usuario(nome, email, senha):
     try:
         conn = sqlite3.connect('usuario.db')
         c = conn.cursor()
+        
+        # Executar a inserção
         c.execute('''
             INSERT INTO usuarios (nome, email, senha)
             VALUES (?, ?, ?)
         ''', (nome, email, senha))
+        
         conn.commit()
         conn.close()
         return True, f"Usuário {nome} cadastrado com sucesso!"
     except sqlite3.IntegrityError:
         return False, "Erro: O email já está cadastrado."
+    except sqlite3.OperationalError as e:
+        st.error(f"Erro operacional no banco de dados: {e}")
+        return False, "Erro ao acessar o banco de dados."
+    except Exception as e:
+        st.error(f"Ocorreu um erro: {e}")
+        return False, f"Erro inesperado: {e}"
+
 
 def cadastrar_despesas_receitas(usuario_id, tipo, descricao, valor, mes, ano):
     try:
@@ -260,4 +270,3 @@ paginas[selecao_pagina]()
 
 # Adicionar o footer
 adicionar_footer()
-
