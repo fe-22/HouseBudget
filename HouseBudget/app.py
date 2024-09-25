@@ -13,7 +13,7 @@ def criar_tabela_usuarios():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
             email TEXT NOT NULL UNIQUE,
-            senha TEXT NOT NULL  -- Adicionando a coluna senha corretamente
+            senha TEXT NOT NULL
         )
     ''')
     conn.commit()
@@ -120,6 +120,17 @@ def listar_registros(usuario_id, mes, ano):
     conn.close()
     return registros
 
+# Função para exibir as receitas e despesas cadastradas
+def exibir_registros(usuario_id, mes, ano):
+    registros = listar_registros(usuario_id, mes, ano)
+    
+    if not registros:
+        st.warning(f"Não há registros de despesas ou receitas para {mes}/{ano}.")
+    else:
+        st.subheader("Receitas e Despesas Cadastradas")
+        df = pd.DataFrame(registros, columns=["Tipo", "Descrição", "Valor (R$)", "Data"])
+        st.dataframe(df)
+
 # Função para criar gráfico de receitas e despesas por mês
 def criar_grafico(usuario_id, ano):
     conn = sqlite3.connect('usuario.db')
@@ -217,6 +228,9 @@ def pagina_principal():
         saldo = calcular_saldo(usuario_id, mes, ano)
         st.header("Resultado")
         st.write(f"O saldo do usuário no mês {mes}/{ano} é: R$ {saldo:.2f}")
+        
+        # Exibir as receitas e despesas cadastradas
+        exibir_registros(usuario_id, mes, ano)
 
 # Função para exibir footer
 def adicionar_footer():
@@ -234,8 +248,8 @@ def adicionar_footer():
     }
     </style>
     <div class="footer">
-        <p>Este aplicativo é propriedade de @Ftech - Todos os direitos reservados © 2024</p>
-        <p>Contatos : <a href="mailto:fernandoalextech@gmail.com">fernandoalextech@gmail.com</a> | </p>
+        <p>Desenvolvido por @Ftech - Todos os direitos reservados © 2024</p>
+        <p>Contatos : <a href="fernandoalextech@gmail.com">fernandoalextech@gmail.com</a> | </p>
     </div>
     """
     st.markdown(footer, unsafe_allow_html=True)
