@@ -4,6 +4,7 @@ from datetime import datetime
 import pandas as pd
 import matplotlib.pyplot as plt
 
+# Função para criar tabela de usuários
 def criar_tabela_usuarios():
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -11,36 +12,17 @@ def criar_tabela_usuarios():
         CREATE TABLE IF NOT EXISTS usuarios (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nome TEXT NOT NULL,
-            email TEXT NOT NULL,
+            email TEXT NOT NULL UNIQUE,
             senha TEXT NOT NULL  -- Adicionando a coluna senha corretamente
         )
     ''')
     conn.commit()
     conn.close()
 
-# Chama a função para criar a tabela com a coluna 'senha'
+# Chama a função para criar a tabela de usuários
 criar_tabela_usuarios()
 
-def adicionar_coluna_senha():
-    conn = sqlite3.connect('usuario.db')
-    c = conn.cursor()
-    
-    # Verifica as colunas existentes na tabela 'usuarios'
-    c.execute("PRAGMA table_info(usuarios)")
-    colunas = [info[1] for info in c.fetchall()]
-    
-    if 'senha' not in colunas:
-        # Adiciona a coluna 'senha'
-        c.execute("ALTER TABLE usuarios ADD COLUMN senha TEXT NOT NULL DEFAULT ''")
-        conn.commit()
-        st.warning("Coluna 'senha' adicionada à tabela 'usuarios'.")
-    else:
-        st.info("A coluna 'senha' já existe na tabela 'usuarios'.")
-    
-    conn.close()
-
-
-
+# Função para criar tabela de despesas e receitas
 def criar_tabela_despesas_receitas():
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -60,6 +42,10 @@ def criar_tabela_despesas_receitas():
     conn.commit()
     conn.close()
 
+# Chama a função para criar a tabela de despesas e receitas
+criar_tabela_despesas_receitas()
+
+# Função para listar todos os usuários
 def listar_usuarios():
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -68,6 +54,7 @@ def listar_usuarios():
     conn.close()
     return usuarios
 
+# Função para cadastrar um novo usuário
 def cadastrar_usuario(nome, email, senha):
     try:
         conn = sqlite3.connect('usuario.db')
@@ -84,14 +71,10 @@ def cadastrar_usuario(nome, email, senha):
         return True, f"Usuário {nome} cadastrado com sucesso!"
     except sqlite3.IntegrityError:
         return False, "Erro: O email já está cadastrado."
-    except sqlite3.OperationalError as e:
-        st.error(f"Erro operacional no banco de dados: {e}")
-        return False, "Erro ao acessar o banco de dados."
     except Exception as e:
-        st.error(f"Ocorreu um erro: {e}")
-        return False, f"Erro inesperado: {e}"
+        return False, f"Erro ao cadastrar usuário: {e}"
 
-
+# Função para cadastrar despesas ou receitas
 def cadastrar_despesas_receitas(usuario_id, tipo, descricao, valor, mes, ano):
     try:
         conn = sqlite3.connect('usuario.db')
@@ -108,6 +91,7 @@ def cadastrar_despesas_receitas(usuario_id, tipo, descricao, valor, mes, ano):
     except Exception as e:
         return False, f"Erro ao cadastrar {tipo}: {e}"
 
+# Função para calcular saldo do usuário
 def calcular_saldo(usuario_id, mes, ano):
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -124,6 +108,7 @@ def calcular_saldo(usuario_id, mes, ano):
     saldo = receita_total - despesa_total
     return saldo
 
+# Função para listar registros de despesas/receitas
 def listar_registros(usuario_id, mes, ano):
     conn = sqlite3.connect('usuario.db')
     c = conn.cursor()
@@ -250,7 +235,7 @@ def adicionar_footer():
     </style>
     <div class="footer">
         <p>Este aplicativo é propriedade de @Ftech - Todos os direitos reservados © 2024</p>
-        <p>Contatos : <a href="fernandoalextech@gmail.com">fernandoalextech@gmail.com</a> | </p>
+        <p>Contatos : <a href="mailto:fernandoalextech@gmail.com">fernandoalextech@gmail.com</a> | </p>
     </div>
     """
     st.markdown(footer, unsafe_allow_html=True)
